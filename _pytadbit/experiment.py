@@ -14,14 +14,14 @@ from pytadbit.utils.hic_filtering import hic_filtering_for_modelling
 from pytadbit.parsers.tad_parser  import parse_tads
 from math                         import isnan
 from numpy                        import log2, array
-from pytadbit.imp.CONFIG          import CONFIG
+from pytadbit.modelling.IMP_CONFIG import CONFIG
 from copy                         import deepcopy as copy
 from sys                          import stderr
 from warnings                     import warn
 
 try:
-    from pytadbit.imp.impoptimizer  import IMPoptimizer
-    from pytadbit.imp.imp_modelling import generate_3d_models
+    from pytadbit.modelling.impoptimizer  import IMPoptimizer
+    from pytadbit.modelling.imp_modelling import generate_3d_models
 except ImportError:
     stderr.write('IMP not found, check PYTHONPATH\n')
 
@@ -403,7 +403,7 @@ class Experiment(object):
 
 
     def filter_columns(self, silent=False, draw_hist=False, savefig=None,
-                       diagonal=True, perc_zero=90, auto=True):
+                       diagonal=True, perc_zero=90, auto=True, min_count=None):
         """
         Call filtering function, to remove artefactual columns in a given Hi-C
         matrix. This function will detect columns with very low interaction
@@ -421,6 +421,9 @@ class Experiment(object):
         :param True diagonal: remove row/columns with zero in the diagonal
         :param 90 perc_zero: maximum percentage of cells with no interactions
            allowed.
+        :param None min_count: minimum number of reads mapped to a bin (recommended
+           value could be 2500). If set this option overrides the perc_zero
+           filtering... This option is slightly slower.
         :param True auto: if False, only filters based on the given percentage
            zeros
 
@@ -432,7 +435,8 @@ class Experiment(object):
             diagonal = True
         self._zeros, has_nans = hic_filtering_for_modelling(
             data, silent=silent, draw_hist=draw_hist, savefig=savefig,
-            diagonal=diagonal, perc_zero=perc_zero, auto=auto)
+            diagonal=diagonal, perc_zero=perc_zero, auto=auto,
+            min_count=min_count)
         if has_nans: # to make it simple
             for i in xrange(self.hic_data[0]._size2):
                 if repr(self.hic_data[0][i]) == 'nan':

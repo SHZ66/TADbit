@@ -21,12 +21,13 @@ class Alignment(object):
     """
     Alignment of TAD borders
     """
-    def __init__(self, name, alignment, experiments, score=None):
+    def __init__(self, name, alignment, experiments, consensus, score=None):
         self.name = name
         self.__experiments = experiments
         self.__values = []        
         self.__keys = []
         self.__len = None
+        self.consensus = consensus
         for seq, exp in zip(alignment, experiments):
             self.add_aligned_exp(exp.name, seq)
         self.score = score
@@ -498,7 +499,7 @@ def randomization_test(xpers, score=None, num=1000, verbose=False, max_dist=1000
                         for _ in xrange(len(tads))]
             # rnd_len.append(len(tads))
         rnd_distr.append(align(rnd_tads, verbose=False, method=method,
-                               max_dist=max_dist)[1])
+                               max_dist=max_dist)[0][1])
         # aligns, sc = align(rnd_tads, verbose=False)
         # rnd_distr.append(sc)
         # for xpr in aligns:
